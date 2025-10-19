@@ -1,0 +1,31 @@
+[project]
+name = "youtube-sentiment-backend"
+version = "1.0.0"
+description = "Multi-agent sentiment analysis system for YouTube videos"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "python-multipart>=0.0.12",
+    "langchain>=0.3.27",
+    "langchain-core>=0.3.76",
+    "langchain-community>=0.3.30",
+    "langchain-openai>=0.3.35",
+    "langchain-tavily>=0.2.0",
+    "langchain-text-splitters>=0.3.9",
+    "langgraph>=0.2.45",
+    "openai>=1.54.0",
+    "requests>=2.32.0",
+    "youtube-transcript-api>=0.6.2",
+    "rank-bm25>=0.2.2",
+    "typing-extensions>=4.12.0",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

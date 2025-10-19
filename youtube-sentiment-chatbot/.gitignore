@@ -1,0 +1,30 @@
+# Node artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+
+# Python virtual environments
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+
+# Python bytecode
+*.pyc
+*.pyo
+__pycache__/
+
+# Environment files
+*.env
+!.env.example
+!.env.local.example
+
+# Lock files (optional - uncomment if you don't want to commit them)
+# backend/uv.lock
+# frontend/package-lock.json
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/

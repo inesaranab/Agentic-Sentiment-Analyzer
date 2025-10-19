@@ -1,0 +1,29 @@
+# FastAPI and server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+python-multipart==0.0.12
+
+# LangChain ecosystem
+langchain==0.3.7
+langchain-core==0.3.15
+langchain-community==0.3.5
+langchain-openai==0.2.5
+langchain-tavily==0.2.0
+langgraph==0.2.45
+
+# LLM providers
+openai==1.54.3
+
+# YouTube data collection
+requests==2.32.3
+youtube-transcript-api==0.6.2
+
+# Document processing
+rank-bm25==0.2.2
+
+# Type hints
+typing-extensions==4.12.2
+
+# Environment variables
+python-dotenv==1.0.1
