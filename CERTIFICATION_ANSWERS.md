@@ -119,6 +119,8 @@ This selection is specific for the prototype:
 
 ### Multi-Agent Hierarchical Architecture
 
+![Arquitecture](image.png)
+
 ```
 ┌────────────────────────────────────────────────────────────────────┐
 │                        USER INTERFACE                               │
