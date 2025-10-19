@@ -77,21 +77,21 @@ The user experience is designed for speed and clarity. The interface streams rea
 ### 2. Technology Stack and Tooling Choices
 
 #### a) LLM
-The models where selected taking into account we are in a prototyping phase:
+The models were selected taking into account we are in a prototyping phase:
 
 **OpenAI GPT-4o-mini** - Selected for balance of speed, cost-effectiveness, and *reasoning capability*; specifically optimized for function calling and tool use which is essential for multi-agent coordination. Used in research_model, analysis_model, supervisor_model and summarization_model.
 **OpenAI GPT-4.1-nano** - Selected specifically for having a fast, cost-effective model for generation.
 
 #### b) Embedding Model
-As a first approach, the system used *text-embedding-3-small* that provide strong semantic understanding at low cost; however, after evaluation the system implements *BM25 retrieval* as a fast, embedding-free alternative for keyword-based search scenarios. For production, and with more comments available, re-evaluation will determine if we keep current approach or prefer an alternative that implements embeddings.
+As a first approach (in the baseline system), we used *text-embedding-3-small* that provide strong semantic understanding at low cost; however, after evaluation the system implements *BM25 retrieval* as a fast, embedding-free alternative for keyword-based search scenarios (youtube comments). For production, and with more comments available, re-evaluation will determine if we keep current approach or prefer an alternative that implements embeddings.
 
 #### c) Orchestration
 **LangGraph 0.2.45+** - Selected as the orchestration framework because it provides explicit, stateful graph-based agent coordination with checkpointing for memory, streaming support for real-time UI updates, and a clear mental model for hierarchical multi-agent systems that's easier to debug than implicit chains.
 
 #### d) Vector Database
-For the prototype:
+This selection is specific for the prototype:
 
-**In-memory BM25Retriever (rank-bm25 0.2.2+)** - Chose BM25 over a traditional vector database because it offers instant in-memory retrieval with zero infrastructure overhead, performs excellently on keyword-rich queries like comment search (95% context precision), and eliminates embedding costs while maintaining fast response times for the test dataset sizes (typically 50-200 comments).
+**In-memory BM25Retriever (rank-bm25 0.2.2+)** - Chose BM25 over a traditional vector database because it offers instant in-memory retrieval with zero infrastructure overhead, performs excellently on the data of my specific dataset (short comments with low semantic signal, specific retrieval of exact matches from comments), and eliminates embedding costs while maintaining fast response times for the test dataset sizes (typically 50-200 comments).
 
 #### e) Monitoring
 **LangSmith** - Selected for its deep integration with LangChain/LangGraph, providing automatic trace visualization of multi-agent workflows, real-time debugging of agent decisions, cost tracking per agent/tool, and the ability to replay failed runs for debugging.
@@ -101,9 +101,6 @@ For the prototype:
 
 #### g) User Interface
 **Next.js 14.2.15 + React 18.3.1 + TypeScript 5** - Selected for its excellent developer experience with TypeScript 5's improved type inference, built-in API routes for the backend proxy, native support for streaming data via Server-Sent Events (SSE) allowing real-time agent progress updates, and optimized React Server Components for fast page loads. New UI libraries include lucide-react for icons, clsx for conditional styling, and remark-gfm for GitHub-flavored markdown rendering in responses.
-
-#### h) Serving and Inference
-**FastAPI 0.115+ with uvicorn** - Chosen for Python 3.13 async/await support enabling concurrent request handling, automatic OpenAPI documentation generation, native support for SSE streaming, and excellent compatibility with LangChain's async patterns.
 
 
 ### 3. Agent and Agentic Reasoning Usage
@@ -378,11 +375,6 @@ This structured approach ensures the system never attempts sentiment analysis wi
 - **Search Strategy:** Constructs search queries enriched with video context (title, channel, topic)
 - **Result Processing:** Extracts summaries and URLs from top 5 search results
 
-#### OpenAI GPT-4o-mini API
-**Purpose:** LLM for agent reasoning, tool use, and response generation
-- **Token Usage:** Optimized with GPT-4o-mini (input: $0.15/1M tokens, output: $0.60/1M tokens)
-- **Function Calling:** Enables agents to invoke tools (search, retrieval, reflection)
-- **Streaming:** Supports real-time token streaming for immediate user feedback
 
 ### 2. Default Chunking Strategy and Rationale
 
@@ -404,25 +396,6 @@ This structured approach ensures the system never attempts sentiment analysis wi
 - **Retrieval Precision:** BM25 performs better with whole comments for keyword matching
 - **User Experience:** When showing evidence, displaying complete comments is more comprehensible than fragments
 
-### 3. [Optional] Specific Data Needs for Other Application Parts
-
-**Session Management Data:**
-- **Purpose:** Enable conversational follow-up questions with memory
-- **Storage:** In-memory Python dict with TTL (24-hour expiration)
-- **Structure:** Maps `session_id` → `{thread_id, checkpointer, video_context, timestamp}`
-- **Rationale:** LangGraph checkpointer stores conversation state, allowing users to ask "What about negative comments?" after initial analysis without re-fetching YouTube data
-
-**Agent Routing Metadata:**
-- **Purpose:** Dependency tracking to prevent analysis before data collection
-- **Structure:** State dict with `research_complete: bool` flag
-- **Rationale:** Ensures logical execution order (Research → Analysis) and prevents wasted LLM calls on empty data
-
-**Streaming Event Data:**
-- **Purpose:** Real-time UI updates showing agent progress
-- **Structure:** Server-Sent Events with types: `progress`, `agent_message`, `final`, `error`
-- **Rationale:** Transparency builds user trust by showing the multi-agent system's reasoning process; also provides immediate feedback for debugging
-
----
 
 ## Task 4: Building an End-to-End Agentic RAG Prototype (15 points)
 
@@ -486,16 +459,18 @@ npm run dev  # Starts on http://localhost:3000
    - Enhanced prompts with decision tree logic
    - Prevents wasted API calls
 
-### [Optional] Local OSS Models
-
-**Not implemented:** Currently uses OpenAI GPT-4o-mini via API.  
-**Future Enhancement:** If privacy/security is my main goal, in the future I could levereage the new gpt-oss in private cloude.
-
 ---
+
+**Note: The following steps can be found in the notebook implementation: 
+
+**Notebook:** - [View on GitHub](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
+
+*"As goes retrieval, so goes genetation"*, so the specific pipeline component that is going to be assesed is the RAG pipeline. Although for the final system I am interested on Agentic evaluation (*goal, *tools).
 
 ## Task 5: Creating a Golden Test Data Set (15 points)
 
-### 1. RAGAS Synthetic Test Dataset Generation Process
+
+### 1. Assess your pipeline using the RAGAS framework including key metrics: faithfulness, response relevance, context precision, and context recall. Provide a table of your output results.
 
 #### Step 1: Knowledge Graph Construction
 
@@ -547,7 +522,7 @@ apply_transforms(kg, default_transforms)
 
 #### Step 2: Persona Implementation
 
-We created **3 distinct personas** representing different user types who would interact with the sentiment analysis system:
+I imagined **3 distinct personas** representing different user types who would interact with the sentiment analysis system:
 
 **Persona 1: Content Creator**
 ```python
@@ -590,18 +565,20 @@ persona_researcher = Persona(
 ```
 
 **Why These Personas?**
-- **Content Creator**: Focuses on actionable feedback and quick insights
-- **Brand Manager**: Requires quantitative metrics and risk detection
-- **Academic Researcher**: Needs deep thematic analysis and nuanced understanding
+- **Content Creator**: Focuses on actionable feedback and quick insights.
+- **Brand Manager**: Requires quantitative metrics and risk detection. *plan to implement this feature.
+- **Academic Researcher**: Needs deep thematic analysis and nuanced understanding. 
 
-These personas ensure test questions cover diverse query types and complexity levels that real users would ask.
+These personas ensure test questions cover diverse query types and complexity levels that **my target audience** would ask.
+
 
 ---
 
 #### Step 3: Query Distribution Strategy
 
 **Single-Hop Query Approach:**
-We chose **single-hop queries exclusively** because our dataset is relatively small (88 documents):
+Chosen **single-hop queries exclusively** because the dataset is relatively small (88 documents). At this stage, I wanted to test retrieval precision on direct queries, not reasoning complexity:
+
 
 ```python
 from ragas.testset.synthesizers import default_query_distribution, SingleHopSpecificQuerySynthesizer
@@ -610,19 +587,9 @@ query_distribution = [
     (SingleHopSpecificQuerySynthesizer(llm=generator_llm), 1),
 ]
 ```
-
-**Why Single-Hop Only?**
-- **Dataset Size**: 88 documents is not large enough to justify complex multi-hop reasoning
-- **Query Nature**: Most sentiment analysis questions can be answered from individual comments or small comment clusters
-- **Realistic Use Case**: Users typically ask specific questions about sentiment/topics that don't require chaining information across many documents
-- **Evaluation Focus**: We wanted to test retrieval precision on direct queries, not reasoning complexity
-
-**Alternative (Not Used):**
-Multi-hop queries would require questions like "How does the sentiment in comments about Feature A compare to comments about Feature B from users who also mentioned Feature C?" This level of complexity doesn't match our use case.
-
----
-
 #### Step 4: Test Set Generation
+
+For the prototype we went with a small testset (10 questions). Once the app is fully implemented this step will be repeated with a larger test size.
 
 **Final Generation Parameters:**
 ```python
@@ -640,16 +607,6 @@ testset = generator.generate(
     query_distribution=query_distribution
 )
 ```
-
-**Configuration Summary:**
-- **Test Set Size**: 10 questions
-- **LLM for Generation**: gpt-4.1-nano (fast, cost-effective)
-- **Embedding Model**: text-embedding-3-small (1536 dimensions)
-- **Personas**: 3 (distributed across 10 questions)
-- **Query Type**: 100% Single-hop specific queries
-- **Knowledge Graph**: 85 nodes, 182 relationships
-
-**Generated Test Data Structure:**
 Each test example contains:
 - **user_input**: The question (e.g., "What is the overall sentiment?")
 - **reference_contexts**: Ground truth documents that should be retrieved
@@ -658,7 +615,7 @@ Each test example contains:
 
 ---
 
-### 2. Baseline Approach: Naive RAG
+#### 5. Baseline Approach for comparison: Naive RAG
 
 **Architecture:**
 ```python
@@ -681,14 +638,9 @@ qdrant_retriever = vector_store.as_retriever(search_kwargs={"k": 6})
 **RAG Pipeline:**
 1. **User Question** → 2. **Embed Query** (text-embedding-3-small) → 3. **Semantic Search** (cosine similarity) → 4. **Retrieve Top-6 Documents** → 5. **Generate Answer** (gpt-4.1-nano)
 
-**Why This Is "Naive":**
-- Uses only semantic similarity (no reranking, no query expansion)
-- No advanced retrieval techniques
-- Baseline for comparison with advanced methods
-
 ---
 
-### 3. Naive RAG RAGAS Evaluation Results
+#### 6. Naive RAG RAGAS Evaluation Results
 
 **Evaluation Configuration:**
 ```python
@@ -716,7 +668,7 @@ baseline_result = evaluate(
 
 ---
 
-### 4. Performance Analysis of Naive RAG
+### 2. What conclusions can you draw about the performance and effectiveness of your pipeline with this information?
 
 #### Critical Weakness Identified: Context Precision
 
@@ -727,9 +679,11 @@ baseline_result = evaluate(
 
 #### Why Low Context Precision?
 
+The NATURE of the dataset:
+
 **For YouTube comments, semantic embeddings struggle with:**
 1. **Sarcasm and Irony**: "Oh great, another bug" (positive embedding, negative sentiment)
-2. **Short Text**: Comments like "lol" or "nice" lack semantic richness
+2. **Short Text**: Comments like "lol" or "nice" lack semantic richness, provide very little signal
 3. **Domain-Specific Terms**: "NPC behavior" might match unrelated gaming content
 4. **Exact Match Needs**: Questions like "What do users say about the refund policy?" need exact keyword matching, not semantic similarity
 
@@ -737,38 +691,17 @@ baseline_result = evaluate(
 
 ---
 
-### 5. Conclusions from Golden Test Data Creation
-
-**Key Insights:**
-
-1. **RAGAS Synthetic Generation Works Well**: The 10 generated questions accurately represent real user queries across 3 personas
-
-2. **Naive RAG Has a Clear Weakness**: 63.33% context precision is unacceptable - users would see too much irrelevant information
-
-3. **Semantic Embeddings May Not Suit Comments**: The nature of YouTube comments (short, sarcastic, keyword-focused) doesn't align well with semantic similarity
-
-4. **Need for Advanced Retrieval**: The baseline results justify testing:
-   - **BM25** (lexical matching for exact terms)
-   - **Cohere Reranker** (improve precision by reranking semantic results)
-   - **Multi-Query** (expand query vocabulary to improve recall)
-
-5. **Single-Hop Queries Are Appropriate**: Our use case doesn't require complex multi-hop reasoning; users ask direct questions about sentiment/topics
-
-**Next Step:** Task 6 will test advanced retrieval methods to address the context precision weakness.
-
----
-
 ## Task 6: Advanced Retrieval Methods Implemented (5 points)
 
 ### Overview: Three Advanced Retrieval Strategies Tested
 
-Based on the **context precision weakness (63.33%)** identified in Task 5, we implemented and tested **three advanced retrieval methods** against the Naive RAG baseline:
+Based on the **context precision weakness (63.33%)** identified in Task 5,  **three advanced retrieval methods**  are tested against the Naive RAG baseline:
 
 1. **Cohere Reranker + Contextual Compression**
 2. **Multi-Query RAG**
 3. **BM25 (Lexical Retrieval)**
 
-Each method addresses different retrieval challenges specific to YouTube comment analysis.
+Each method addresses different retrieval challenges specific to YouTube comment analysis (I reserve Hybrid for complex dataset with more comments)
 
 ---
 
@@ -862,33 +795,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 #### Why This Method?
 
-**Problem Addressed:** YouTube comments are **short, keyword-rich, and often sarcastic/ironic**, which makes semantic embeddings unreliable. Consider these examples:
-
-**Example 1 - Sarcasm:**
-- Comment: "Oh great, another bug 🙄"
-- Semantic embedding: Might focus on "great" → positive
-- BM25: Exact match on "bug" → correctly retrieves for "What bugs are mentioned?"
-
-**Example 2 - Short Text:**
-- Comment: "lol"
-- Semantic embedding: Too short, meaningless vector
-- BM25: Exact match on "lol" → retrieves for "Are there humorous reactions?"
-
-**Example 3 - Exact Terminology:**
-- Query: "What do users say about the refund policy?"
-- Semantic search: Might retrieve "return process", "money back", "warranty" (semantically similar)
-- BM25: Exact match on "refund" → more precise
-
-**Example 4 - Domain-Specific Terms:**
-- Comment: "The NPC behavior is broken"
-- Semantic embedding: "NPC" might match generic "character" or "person"
-- BM25: Exact match on "NPC" → retrieves for gaming-specific queries
-
-**Hypothesis:** For comment analysis, **exact keyword matching is more reliable than semantic similarity** because:
-1. Comments are too short for meaningful semantic representation
-2. Sarcasm/irony inverts semantic meaning
-3. Users asking about specific topics (e.g., "refund", "bug", "feature X") want exact matches
-4. Domain-specific terminology requires precision, not semantic generalization
+**Problem Addressed:** YouTube comments are **short, keyword-rich, and often sarcastic/ironic**, which makes semantic embeddings unreliable. 
 
 **Expected Benefit:**
 - **Much higher context precision**: Exact matching reduces irrelevant retrievals
@@ -898,30 +805,9 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-### Test Methodology (Applied to All Methods)
-
-**Evaluation Configuration:**
-- **Test Set**: Same 10 RAGAS synthetic questions from Task 5
-- **Video**: Same "The Programmer's Brain" video (iqNzfK4_meQ)
-- **Document Corpus**: Same 88 documents (comments + transcript chunks)
-- **Generator LLM**: gpt-4.1-nano (identical for all methods)
-- **Evaluator LLM**: gpt-4o (RAGAS judge for all methods)
-- **Metrics**: faithfulness, context_recall, context_precision, answer_relevancy
-- **Timeout**: 360 seconds per evaluation
-
-**Controlled Variables:**
-- Generation prompt (identical)
-- LLM temperature and parameters (identical)
-- Document preprocessing (identical)
-- Test questions (identical)
-
-**Only Variable Changed:** The retrieval method (baseline semantic vs. Cohere reranker vs. Multi-Query vs. BM25)
-
----
-
 ## Task 7: Assessing Performance (10 points)
 
-### 1. Performance Comparison: All Retrieval Methods vs. Naive RAG Baseline
+### 1. How does the performance compare to your original RAG application? Test the new retrieval pipeline using the RAGAS framework to quantify any improvements. Provide results in a table.
 
 #### Absolute Scores - Complete RAGAS Results Table:
 
@@ -945,30 +831,30 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-### 2. Performance Analysis: Which Method Is Best?
+#### 2. Performance Analysis: Which Method Is Best?
 
-#### 🏆 WINNER: BM25 (Lexical Retrieval)
+#### WINNER: BM25 (Lexical Retrieval)
 
 **BM25 achieves the highest average score (0.8957 / 89.57%) and outperforms the baseline by +4.21%**
 
 **Breakdown of BM25 Performance:**
 
-1. **✅ Highest Faithfulness: 0.9186 (+1.18%)**
+1. **Highest Faithfulness: 0.9186 (+1.18%)**
    - BM25's exact keyword matching ensures retrieved documents are genuinely relevant to the question
    - Less noise → LLM generates more grounded answers
    - Fewer irrelevant documents → reduced hallucination risk
 
-2. **✅ Tied for Highest Context Recall: 0.9000 (0.00% change)**
+2. **Tied for Highest Context Recall: 0.9000 (0.00% change)**
    - Maintains same recall as Naive RAG baseline
    - Successfully retrieves 90% of ground truth information
    - Keyword matching doesn't miss relevant comments (queries and comments share vocabulary)
 
-3. **✅ Second-Best Context Precision: 0.8667 (+36.84%)**
+3. **Second-Best Context Precision: 0.8667 (+36.84%)**
    - **MASSIVE improvement** from baseline's 63.33% to 86.67%
    - 37% fewer irrelevant documents in top-k results
    - Users see much cleaner, more focused context
 
-4. **✅ Highest Answer Relevancy: 0.8975 (+0.08%)**
+4. **Highest Answer Relevancy: 0.8975 (+0.08%)**
    - Slightly better than baseline
    - More relevant context → more relevant answers
 
@@ -1027,38 +913,9 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 - Query expansion works better for long-form content, not short comments
 
 ---
+#### 3. Final Decision for this prototype: BM25
 
-### 3. Detailed Comparison: Critical Metrics
-
-#### Context Precision: The Game-Changer
-
-| Method | Context Precision | Improvement vs. Baseline | Interpretation |
-|--------|-------------------|-------------------------|----------------|
-| **Naive RAG** | 0.6333 | Baseline | **37% of retrieved docs are irrelevant** (unacceptable) |
-| **Cohere Reranker** | 0.8750 | **+38.16%** | 12.5% irrelevant docs (excellent) |
-| **Multi-Query** | 0.7097 | +12.06% | 29% irrelevant docs (still high) |
-| **BM25** | 0.8667 | **+36.84%** | 13.3% irrelevant docs (excellent) |
-
-**Key Insight:** Both Cohere and BM25 solve the baseline's precision problem (~37% improvement). BM25 does it without embeddings or reranking costs.
-
----
-
-#### Faithfulness: Hallucination Prevention
-
-| Method | Faithfulness | Improvement vs. Baseline | Interpretation |
-|--------|--------------|-------------------------|----------------|
-| **Naive RAG** | 0.9079 | Baseline | 9.21% hallucination rate |
-| **Cohere Reranker** | 0.8946 | -1.46% | 10.54% hallucination (worse) |
-| **Multi-Query** | 0.8460 | -6.82% | 15.4% hallucination (much worse) |
-| **BM25** | **0.9186** | **+1.18%** | **8.14% hallucination (best)** |
-
-**Key Insight:** BM25's exact matching provides cleaner context → LLM stays grounded in evidence. Multi-Query's noise increases hallucination risk.
-
----
-
-### 4. Final Recommendation: BM25 for Production
-
-**Decision:** Use **BM25 (lexical retrieval)** as the production retrieval method.
+**Decision:** Use **BM25 (lexical retrieval)** as the prototype retrieval method.
 
 **Justification:**
 1. **Highest average score**: 89.57% (vs. 85.95% baseline) = +4.21% improvement
@@ -1074,117 +931,31 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-### 5. Planned Application Improvements for Second Half of Course
+### 2. Planned Application Improvements for Second Half of Course
 
 #### Improvement 1: Hybrid BM25 + Semantic Retrieval
+Once more comments are available and I test with a richer dataset and with my final system:
+
 **Change:** Implement weighted hybrid retrieval combining BM25 (lexical) + embeddings (semantic)
 - **Implementation**: RRF (Reciprocal Rank Fusion) to merge BM25 and semantic scores
-- **Dynamic Weighting**:
-  - Keyword-heavy queries (e.g., "refund issues"): 80% BM25 / 20% semantic
-  - Conceptual queries (e.g., "overall user satisfaction"): 30% BM25 / 70% semantic
-  - Classifier to detect query type automatically
-- **Expected Impact**: +2-4% context recall by capturing both exact matches and semantic similarity
+
 - **Benefit**: Handles both specific keyword queries and broad thematic questions
 
 ---
 
-#### Improvement 2: Fine-Tuned Embedding Model for Comments
-**Change:** Fine-tune `text-embedding-3-small` on YouTube comment domain data
-- **Training Data**: 10,000+ comment pairs with relevance labels (positive/negative examples)
-- **Focus**: Learn comment-specific patterns:
-  - Sarcasm detection ("Oh great..." → negative context)
-  - Slang and abbreviations ("lol", "ngl", "tbh")
-  - Emoji sentiment markers (🙄, 😍, 😡)
-  - Domain-specific terminology (gaming, tech, beauty, etc.)
-- **Expected Impact**: +3-5% across all metrics through better semantic understanding of short, informal text
-- **Cost**: One-time training cost, ongoing API costs remain same
-
----
-
-#### Improvement 3: Hierarchical Summarization for Large Videos
-**Change:** Implement MapReduce pattern for videos with 500+ comments
-- **Current Limitation**: Context window overflow for videos with hundreds/thousands of comments
-- **Map Phase**:
-  - Batch comments into groups of 100
-  - Each batch analyzed by specialized agents independently
-  - Generate intermediate summaries per batch
-- **Reduce Phase**:
-  - SuperSupervisor synthesizes batch summaries into coherent final analysis
-  - Combines sentiment distributions, aggregates topics
-- **Expected Impact**: Scale to viral videos (10,000+ comments) without quality degradation
-- **Benefit**: Maintain 15-30 second response time regardless of comment volume
-
----
-
-#### Improvement 4: Temporal Sentiment Analysis
-**Change:** Add time-series analysis of sentiment shifts over comment timestamps
-- **Feature**: "Sentiment evolved from 85% positive (first 100 comments, day 1) to 45% positive (comments after day 3)"
-- **Implementation**:
-  - Bucket comments by timestamp (hourly/daily bins)
-  - Track sentiment distribution per bucket
-  - Detect statistically significant shifts (chi-square test)
-- **Visualization**: Line charts showing sentiment evolution over time
-- **Expected Impact**:
-  - Identify when sentiment changes (e.g., after a creator response or controversy)
-  - Detect viral moments (sudden spike in comment volume + sentiment shift)
-  - Help creators understand when to address negative feedback
-- **Use Case**: Brand managers monitoring PR crises ("Sentiment turned negative on day 3 after competitor video dropped")
-
----
-
-#### Improvement 5: Multi-Language Support
+#### Improvement 2: Multi-Language Support
+I notice from qualitative analysis (vibe's) that the system performs worst in spanish...
 **Change:** Detect comment language and route to appropriate translation + analysis pipeline
 - **Target Languages**: Spanish, French, Portuguese, German, Japanese (top non-English YouTube languages)
 - **Implementation**:
-  - Language detection: `langdetect` library (fast, 99% accuracy for 50+ char text)
-  - Translation: OpenAI GPT-4o (better at preserving sentiment nuance than Google Translate)
+  - Language detection: `langdetect` library.
+  - Translation: Upgrade to OpenAI's latest models or try other providers. 
   - Analysis: Translate → Analyze in English → Present results in original language
-- **Handling Mixed Languages**:
-  - If >70% of comments in non-English language → translate all
-  - If <30% non-English → analyze separately, merge results
-- **Expected Impact**:
-  - Expand addressable market from English-only to global creators
-  - Support international brands monitoring multi-language campaigns
-- **Cost Consideration**: Translation adds ~$0.001 per comment (manageable for 50-200 comment batches)
+- **Cost Consideration**: An analysis of the cost and tokens will be performed.
 
 ---
 
-#### Improvement 6: Adversarial Comment Detection and Filtering
-**Change:** Add specialized agent to detect and filter spam, bots, and toxic comments before analysis
-- **Implementation**:
-  - **Bot Detection**: Heuristics (duplicate text, suspicious usernames like "user123456")
-  - **Spam Detection**: Fine-tuned DistilBERT classifier trained on YouTube spam dataset
-  - **Toxicity Filtering**: Perspective API integration (Google Jigsaw)
-- **Filtering Strategy**:
-  - Flag comments as spam/bot/toxic → exclude from sentiment analysis
-  - Optionally report filtered comment stats ("15 spam comments removed")
-- **Expected Impact**:
-  - +3-5% faithfulness by removing noise/manipulation
-  - More accurate sentiment distribution (spam often skews positive/negative)
-  - Better user experience (no "Buy followers!" comments in results)
-- **Ethical Consideration**: Transparent about filtering (don't silently hide real negative feedback)
-
----
-
-#### Improvement 7: User Feedback Loop with RLHF
-**Change:** Collect implicit and explicit feedback to personalize retrieval
-- **Implicit Feedback**: Track which retrieved comments users click/expand in UI
-- **Explicit Feedback**: Thumbs up/down on final analysis results
-- **RLHF Training**:
-  - Fine-tune retrieval scoring model using human preference data
-  - Learn: "Content creators prefer comments mentioning actionable feedback"
-  - Learn: "Brand managers prioritize comments with quantifiable impact"
-- **Personalization**:
-  - Adapt to user-specific interests (e.g., tech-focused creator vs. beauty influencer)
-  - Adjust relevance scoring based on user persona
-- **Expected Impact**:
-  - +5-10% answer relevancy through alignment with user needs
-  - Better user retention (system learns their preferences over time)
-- **Privacy**: Aggregate feedback across users, don't store individual preferences without consent
-
----
-
-#### Improvement 8: Caching and Incremental Updates
+#### Improvement 3: Caching and Incremental Updates
 **Change:** Cache analyzed videos in database, only fetch new comments on revisit
 - **Implementation**:
   - **Storage**: PostgreSQL with JSONB for flexible comment storage
@@ -1200,211 +971,11 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
   - Recalculate sentiment distribution with updated data
   - Flag "Sentiment shifted +5% positive since last analysis"
 
----
+#### Improvement 4: Added Bert model for quantitave sentiment
 
-### Summary of Improvements:
-
-| Improvement | Primary Benefit | Expected Metric Gain | Implementation Complexity |
-|-------------|----------------|---------------------|-------------------------|
-| Hybrid BM25 + Semantic | Handles both specific and broad queries | +2-4% recall | Medium |
-| Fine-Tuned Embeddings | Better comment understanding | +3-5% all metrics | High |
-| Hierarchical Summarization | Scales to viral videos | No quality loss at scale | Medium |
-| Temporal Analysis | Detects sentiment shifts | New feature (no metrics) | Low |
-| Multi-Language | Global market expansion | New feature (no metrics) | Medium |
-| Adversarial Filtering | Cleaner data | +3-5% faithfulness | Low |
-| User Feedback (RLHF) | Personalization | +5-10% relevancy | High |
-| Caching | 10x faster revisits | No quality change | Low |
-
-**Priority Order (by impact/effort ratio):**
-1. **Caching** (low effort, huge speed gain)
-2. **Adversarial Filtering** (low effort, quality improvement)
-3. **Temporal Analysis** (medium effort, unique feature)
-4. **Hybrid Retrieval** (medium effort, addresses edge cases)
-5. **Multi-Language** (medium effort, market expansion)
-6. **Hierarchical Summarization** (medium effort, scalability)
-7. **Fine-Tuned Embeddings** (high effort, significant quality gain)
-8. **User Feedback (RLHF)** (high effort, personalization)
+It will improve my application by adding detail statistics that will inform my target audience.
 
 ---
-
-## Final Submission: Public GitHub Repo (20 points)
-
-### Repository Details:
-- **URL:** https://github.com/inesaranab/Agentic-Sentiment-Analyzer
-- **Visibility:** Public
-- **Branch:** `main`
-- **Last Updated:** October 19, 2025
-
-### Repository Contents:
-
-#### 1. Complete Codebase (`youtube-sentiment-chatbot/`)
-- **Backend:** FastAPI + LangGraph + LangChain (Python 3.13)
-  - `app/agents/`: Agent factory, tools, supervisor with memory
-  - `app/api/`: Routes with streaming and session management
-  - `app/core/`: Configuration, prompts, session manager, state
-  - `app/graphs/`: LangGraph multi-agent graphs
-  - `app/rag/`: BM25 retrieval, chunking, generation
-  - `app/youtube/`: YouTube data collectors (comments, transcript)
-- **Frontend:** Next.js 14 + React 18 + TypeScript
-  - `src/app/`: Pages with fixed state management
-  - `src/components/`: Streaming display, URL input
-  - `src/hooks/`: useStreamingAnalysis hook
-  - `src/lib/`: API client, types, utilities
-- **Notebooks:** Original Jupyter notebook with RAGAS evaluation
-
-#### 2. Documentation Files
-- `README.md`: Project overview, architecture, quick start guide
-- `CONVERSATION_MEMORY.md`: Memory implementation guide
-- `DEPENDENCY_ROUTING_FIX.md`: Routing fix documentation
-- `AGENT_DISPLAY_UPDATE.md`: UI update documentation
-- `CERTIFICATION_ANSWERS.md`: This document (all challenge answers)
-- `COMPREHENSIVE_NOTEBOOK_ANALYSIS.md`: Detailed notebook analysis
-- `.github/instructions/memory.instructions.md`: Docs by LangChain context
-
-#### 3. Configuration Files
-- `backend/pyproject.toml`: Python dependencies (UV package manager)
-- `backend/.env.example`: Environment variable template
-- `frontend/package.json`: Node.js dependencies
-- `frontend/.env.local.example`: Frontend environment template
-- `.gitignore`: Properly configured to exclude `node_modules/`, `.venv/`, logs
-
-### 4. 5-Minute Loom Video (To Be Recorded)
-
-**Planned Video Structure:**
-
-**[0:00-0:30] Introduction & Problem Statement**
-- Quick intro: "Hi, I'm Inés. This is the YouTube Sentiment Chatbot."
-- Problem: "Creators receive hundreds of comments but lack time to analyze them."
-
-**[0:30-1:30] Live Demo**
-- Paste YouTube URL: "The Programmer's Brain" book review
-- Show streaming UI: "Watch agents work in real-time"
-- Highlight agent messages: VideoSearch, CommentFinder, Sentiment, Topic
-- Show final results: "Comprehensive analysis with evidence quotes"
-
-**[1:30-2:30] Follow-Up Question Demo**
-- Ask: "What controversial topics are mentioned?"
-- Show conversation memory: "Notice how it remembers previous context"
-- Display results with timestamps and author names
-
-**[2:30-3:30] Architecture Explanation**
-- Show diagram: "3-tier hierarchical multi-agent system"
-- Explain routing: "SuperSupervisor enforces dependencies"
-- Highlight: "Reflection tools for quality assurance"
-
-**[3:30-4:30] Technical Deep Dive**
-- Quick tour of code structure: Backend (FastAPI), Frontend (Next.js)
-- Show LangGraph graph visualization: "How agents coordinate"
-- Mention RAGAS evaluation: "91.59% average performance"
-
-**[4:30-5:00] Conclusion & Future Work**
-- Recap key features: Multi-agent, streaming, memory, dependency routing
-- Mention improvements: Hybrid retrieval, fine-tuned embeddings, time-series analysis
-- Call to action: "Check out the GitHub repo for full documentation"
 
 **Video URL:** [To be added after recording]
 
-### 5. GitHub Repository Quality
-
-✅ **Clean commit history** with descriptive messages  
-✅ **Proper .gitignore** (no `node_modules/`, `__pycache__/`, logs)  
-✅ **Comprehensive README** with quick start, architecture, features  
-✅ **Multiple documentation files** for different aspects  
-✅ **Working code** verified on local deployment  
-✅ **Environment templates** (`.env.example`) for easy setup  
-✅ **Type-safe codebase** (TypeScript frontend, Pydantic backend)
-
----
-
-## Summary Statistics
-
-**Total Points Achieved:** 100/100
-
-- ✅ Task 1 (Problem & Audience): 10/10
-- ✅ Task 2 (Propose Solution): 15/15
-- ✅ Task 3 (Data Sources): 10/10
-- ✅ Task 4 (Prototype): 15/15
-- ✅ Task 5 (RAGAS Evaluation): 15/15
-- ✅ Task 6 (Advanced Retrieval): 5/5
-- ✅ Task 7 (Performance Comparison): 10/10
-- ✅ Task 8 (GitHub Repo): 20/20
-
-**Key Achievements:**
-- Built production-ready multi-agent system with conversation memory
-- Achieved 91.59% average RAGAS score on baseline, 93.5% with advanced retrieval
-- Implemented 3-tier hierarchical architecture with 6 specialized agents
-- Created streaming UI with real-time agent progress display
-- Comprehensive documentation across 8+ markdown files
-- Clean, type-safe codebase deployed locally with full functionality
-
-**GitHub Repository:** https://github.com/inesaranab/Agentic-Sentiment-Analyzer
-
----
-
-## 🆕 New Features & Enhancements Since Initial Development
-
-### 1. **Dependency-Aware Routing with Reflection Tools**
-   - **Feature:** SuperSupervisor uses `supervisor_think_tool()` to check dependencies before routing
-   - **Impact:** Prevents analysis agents from running without data (eliminates 100% of dependency failures)
-   - **Implementation:** Enhanced prompts with explicit decision tree logic (lines 59-99 in `prompts.py`)
-
-### 2. **Agent Reflection Tools for Quality Assurance**
-   - **Feature:** `sentiment_think_tool()` and `topic_think_tool()` enable self-critique
-   - **Impact:** Agents pause to assess data quality, classification confidence, and completeness
-   - **Result:** Improved faithfulness (88.89%) and answer relevancy (92.45%) scores
-
-### 3. **Modern Tech Stack Upgrades**
-   - **React 18.3.1:** Latest stable version with improved concurrent rendering
-   - **TypeScript 5:** Enhanced type inference and performance
-   - **Next.js 14.2.15:** Latest features including improved App Router and Server Components
-   - **Python 3.13:** Latest Python with performance improvements
-   - **LangChain 0.3.27+:** Updated from 0.3.7 with breaking changes resolved
-   - **New UI Libraries:**
-     - `lucide-react ^0.546.0`: Modern icon system
-     - `clsx ^2.1.1`: Conditional CSS class management
-     - `remark-gfm ^4.0.1`: GitHub-flavored markdown rendering for agent responses
-
-### 4. **UV Package Manager Integration**
-   - **Feature:** Rust-based package manager replacing pip
-   - **Performance:** 10-100x faster (5 seconds vs 45-60 seconds for 76 packages)
-   - **Benefits:** Deterministic lock files, modern pyproject.toml support, parallel downloads
-
-### 5. **Production-Grade Dependency Management**
-   - **Pydantic v2 Compatibility:** Fixed deprecated `const=True` → `Literal` types
-   - **LangChain Text Splitters:** Separated package `langchain-text-splitters>=0.3.9`
-   - **Version Pinning:** Minimum versions specified for all 24 backend dependencies
-
-### 6. **Enhanced Supervisor Prompts**
-   - **Before:** Simple "route to next worker" logic
-   - **After:** 127-line comprehensive routing guide with:
-     - Dependency checking instructions
-     - 5-step decision tree for query classification
-     - Sequential execution patterns for complex queries
-     - Progress assessment framework
-
-### 7. **Streaming UI with Real-Time Agent Visibility**
-   - **Feature:** Server-Sent Events (SSE) show live agent progress
-   - **Display:** Color-coded agent messages with timestamps
-   - **Transparency:** Users see exactly which agent is working and what they're doing
-   - **Example:** "CommentFinder: Retrieving relevant comments..." → "Sentiment Agent: Analyzing emotional tone..."
-
-### 8. **RAGAS-Validated Production Pipeline**
-   - **KEY ACHIEVEMENT:** Production RAG is 100% identical to notebook's winning configuration
-   - **Validation:** 91.59% average RAGAS score justifies all production decisions
-   - **Tested Methods:** BM25 outperformed Naive RAG, Compression+Reranker, and Multi-Query
-   - **Evidence-Based:** Every component (chunking, retrieval, generation) has metric-backed rationale
-
-### Technology Version Summary:
-
-| Component | Version | Upgrade From | Reason |
-|-----------|---------|--------------|--------|
-| React | 18.3.1 | N/A (new) | Concurrent features, streaming support |
-| TypeScript | 5 | N/A (new) | Improved type inference |
-| Next.js | 14.2.15 | N/A (new) | App Router, Server Components |
-| Python | 3.13 | 3.11 | Performance, modern syntax |
-| LangChain | 0.3.27+ | 0.3.7 | Breaking changes, stability fixes |
-| LangGraph | 0.2.45+ | N/A | Multi-agent orchestration |
-| FastAPI | 0.115+ | N/A | Async streaming support |
-| Pydantic | 2.9.0+ | v1 | v2 API, Literal types |
-
----
