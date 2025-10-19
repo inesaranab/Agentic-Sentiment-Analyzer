@@ -121,83 +121,22 @@ This selection is specific for the prototype:
 
 ![Arquitecture](image.png)
 
+### RAG Graph
 
+![RAG Graph](rag_graph.png)
 
-### Data Flow Diagram
+### Research Team
 
-```
-1. USER INPUT
-   │
-   ├─ YouTube URL: "https://youtube.com/watch?v=iqNzfK4_meQ"
-   └─ Question: "What's the overall sentiment?"
-   │
-   ▼
-2. SUPER SUPERVISOR ANALYSIS
-   │
-   ├─ supervisor_think_tool() → "Sentiment analysis requires comments first"
-   ├─ Decision: Route to Research team
-   └─ Dependency: CommentFinder must run before Sentiment agent
-   │
-   ▼
-3. RESEARCH TEAM EXECUTION
-   │
-   ├─ Research Supervisor receives task
-   ├─ Routes to CommentFinder agent
-   │  │
-   │  ├─ YouTube API call: Fetch 50 comments #per prototype, quota = 1000
-   │  ├─ Transcript API: Fetch video subtitles
-   │  ├─ Build unified document (metadata + transcript)
-   │  ├─ Create comment documents (with author, likes, dates)
-   │  └─ Prepare for BM25 retrieval
-   │     │
-   │     ├─ Chunk transcript: 750 chars, 150 overlap → 8 chunks
-   │     └─ Keep comments whole: 50 individual documents
-   │        │
-   │        └─ BM25 index: 58 total documents (8 chunks + 50 comments)
-   │
-   └─ Return to Super Supervisor: "Comments retrieved ✓"
-   │
-   ▼
-4. SUPER SUPERVISOR RE-ROUTES
-   │
-   ├─ SUPER_SUPERVISOR_SYSTEM_PROMPT → "Comments available, can now analyze sentiment"
-   ├─ Decision: Route to Analysis team
-   └─ Task: "Analyze sentiment"
-   │
-   ▼
-5. ANALYSIS TEAM EXECUTION
-   │
-   ├─ Analysis Supervisor receives task
-   ├─ Routes to Sentiment agent
-   │  │
-   │  ├─ BM25 Retrieval:
-   │  │  ├─ Query: "overall sentiment"
-   │  │  ├─ BM25 scoring across 58 documents
-   │  │  └─ Return top-k=6 documents (Context Precision: 95%)
-   │  │
-   │  ├─ LLM Generation:
-   │  │  ├─ Model: gpt-4.1-nano
-   │  │  ├─ Input: Question + 6 retrieved comments
-   │  │  ├─ Prompt: "Use provided context, consider topics/users/sentiment"
-   │  │  └─ Output: "Overall sentiment is positive (78%)..."
-   │  │
-   │  └─ sentiment_think_tool()
-   │     └─ Reflection: "Do I have sufficient evidence? Are classifications well-supported?"
-   │
-   └─ Return to Super Supervisor: "Sentiment analysis complete ✓"
-   │
-   ▼
-6. FINAL RESPONSE
-   │
-   ├─ Super Supervisor: "Question fully answered, route to FINISH"
-   ├─ Stream final result to frontend via SSE
-   │  │
-   │  ├─ Sentiment breakdown (positive, negative, neutral)
-   │  ├─ Evidence quotes from comments
-   │  └─ Metadata: author names, likes, publication dates
-   │
-   └─ Save checkpoint for follow-up questions
-```
+![Research](research_graph.png)
+
+### Analysis Team
+
+![Analysis](analysis_graph.png)
+
+### Supervisor
+
+![Supervisor](main_graph.png)
+
 
 ### Reflection Tools & Quality Assurance
 
