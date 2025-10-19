@@ -6,7 +6,7 @@
 **Date:** October 21, 2025
 
 ---
-Before starting, there is a key question that
+Before starting, there is a key question that I want to make clear:
 ## 🎯 KEY QUESTION: Is Production RAG Identical to Notebook RAG?
 
 ### **ANSWER: YES** ✅
