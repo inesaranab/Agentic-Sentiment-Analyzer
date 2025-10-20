@@ -88,27 +88,13 @@ This selection is specific for the prototype:
 
 ## 🏗️ System Architecture Design
 
-### Multi-Agent Hierarchical Architecture
+### System Design
 
 ![Arquitecture](arch_logos.png)
 
-### RAG Graph
+### Multi-Agent Hierarchical Architecture
 
-![RAG Graph](rag_graph.png)
-
-### Research Team
-
-![Research](research_graph.png)
-
-### Analysis Team
-
-![Analysis](analysis_graph.png)
-
-### Supervisor
-
-![Supervisor](main_graph.png)
-
-
+![Agent graphs](graphs_full.png)
 ---
 
 ## Task 3: Dealing with the Data
