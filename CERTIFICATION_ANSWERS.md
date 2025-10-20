@@ -145,6 +145,7 @@ This selection is specific for the prototype:
 - **Retrieval Precision:** BM25 performs better with whole comments for keyword matching
 - **User Experience:** When showing evidence, displaying complete comments is more comprehensible than fragments
 
+---
 
 ## Task 4: Building an End-to-End Agentic RAG Prototype (15 points)
 
