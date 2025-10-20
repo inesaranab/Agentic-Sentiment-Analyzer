@@ -90,7 +90,7 @@ This selection is specific for the prototype:
 
 ### Multi-Agent Hierarchical Architecture
 
-![Arquitecture](architecture.png)
+![Arquitecture](arch_logos.png)
 
 ### RAG Graph
 
