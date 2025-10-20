@@ -7,7 +7,7 @@
 
 ---
 
-## Task 1: Defining your Problem and Audience (10 points)
+## Task 1: Defining your Problem and Audience
 
 ### 1. Problem Statement (1 sentence)
 
@@ -64,7 +64,7 @@ This selection is specific for the prototype:
 
 ### 3. Agent and Agentic Reasoning Usage
 
-**We use agentic reasoning in three critical areas:**
+**Agentic reasoning is used in three critical areas:**
 
 **1. Dynamic Routing & Dependency Management:** The SuperSupervisor agent uses agentic reasoning to intelligently route requests between Research and Analysis teams. It understands that sentiment/topic analysis cannot proceed without first having comment data, automatically enforcing dependencies through a decision tree encoded in its system prompt. This prevents wasted API calls and ensures logical execution order.
 
@@ -97,62 +97,11 @@ This selection is specific for the prototype:
 ![Supervisor](main_graph.png)
 
 
-### Reflection Tools & Quality Assurance
-
-The system implements three specialized reflection tools that pause execution for strategic thinking:
-
-1. **supervisor_think_tool()** (SuperSupervisor) # Not implemented, plan to implement
-   - **When:** Before every routing decision
-   - **Purpose:** Dependency checking, execution planning, gap assessment
-   - **Example:** "Does Sentiment agent need comments? YES → Route to Research first"
-   - **Impact:** Prevents wasted API calls, ensures logical execution order
-
-2. **sentiment_think_tool()** (Sentiment Agent)
-   - **When:** After processing comment batches, before finalizing analysis
-   - **Purpose:** Pattern recognition, data quality assessment, classification confidence
-   - **Example:** "Do I have sufficient data for reliable conclusions? Are sentiment labels well-supported?"
-   - **Impact:** Reduces hallucination, improves faithfulness (88.89%)
-
-3. **topic_think_tool()** (Topic Agent)
-   - **When:** After content processing, before generating topic reports
-   - **Purpose:** Topic discovery, coverage assessment, classification confidence
-   - **Example:** "Do I have enough examples for each topic? Are boundaries clear?"
-   - **Impact:** Increases answer relevancy (92.45%)
-
-### Enhanced Supervisor Prompts with Decision Trees
-
-The SuperSupervisor prompt includes explicit routing logic:
-
-```python
-ROUTING DECISION TREE:
-
-1. User asks about SENTIMENT or EMOTIONS:
-   → Check: Have comments been retrieved?
-   → NO: Route to "Research team"
-   → YES: Route to "Analysis team"
-
-2. User asks about TOPICS or THEMES:
-   → Check: Have comments been retrieved?
-   → NO: Route to "Research team"
-   → YES: Route to "Analysis team"
-
-3. User asks about SPECIFIC COMMENTS:
-   → Route to "Research team" (CommentFinder)
-
-4. User asks about VIDEO CONTEXT:
-   → Route to "Research team" (VideoSearch)
-
-5. GENERAL QUESTIONS:
-   → Research team → Analysis team (sequential)
-```
-
-This structured approach ensures the system never attempts sentiment analysis without data, eliminating a common failure mode.
-
 ---
 
-## Task 3: Dealing with the Data (10 points)
+## Task 3: Dealing with the Data
 
-### 1. Data Sources and External APIs
+### 1. Describe all of your data sources and external APIs, and describe what you'll use them for.
 
 #### YouTube Data API v3
 **Purpose:** Primary data collection for video metadata and comments
@@ -176,7 +125,7 @@ This structured approach ensures the system never attempts sentiment analysis wi
 - **Result Processing:** Extracts summaries and URLs from top 5 search results
 
 
-### 2. Default Chunking Strategy and Rationale
+### 2. Describe the default chunking strategy that you will use. Why did you make this decision?
 
 **Two-Tier Chunking Strategy Based on Content Type:**
 
@@ -483,17 +432,15 @@ The NATURE of the dataset:
 
 **For YouTube comments, semantic embeddings struggle with:**
 1. **Sarcasm and Irony**: "Oh great, another bug" (positive embedding, negative sentiment)
-2. **Short Text**: Comments like "lol" or "nice" lack semantic richness, provide very little signal
+2. **Short Text**: Comments like "lol" or "nice" lack semantic richness, provide very little signal for semantic embeddings.
 3. **Domain-Specific Terms**: "NPC behavior" might match unrelated gaming content
-4. **Exact Match Needs**: Questions like "What do users say about the refund policy?" need exact keyword matching, not semantic similarity
+4. **Exact Match Needs**: Questions like "What does user @XXX say about the refund policy?" need exact keyword matching, not semantic similarity
 
 **Hypothesis:** Lexical retrieval (BM25) might perform better for short, keyword-rich comments where exact matching is more reliable than semantic similarity.
 
 ---
 
-## Task 6: Advanced Retrieval Methods Implemented (5 points)
-
-### Overview: Three Advanced Retrieval Strategies Tested
+## Task 6: Advanced Retrieval Methods 
 
 Based on the **context precision weakness (63.33%)** identified in Task 5,  **three advanced retrieval methods**  are tested against the Naive RAG baseline:
 
@@ -605,7 +552,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-## Task 7: Assessing Performance (10 points)
+## Task 7: Assessing Performance 
 
 ### 1. How does the performance compare to your original RAG application? Test the new retrieval pipeline using the RAGAS framework to quantify any improvements. Provide results in a table.
 
@@ -631,7 +578,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-#### 2. Performance Analysis: Which Method Is Best?
+#### 2. Assesing the Performance
 
 #### WINNER: BM25 (Lexical Retrieval)
 
@@ -668,7 +615,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 - BM25 excels: exact term matching works perfectly for short text
 
 **2. Sarcasm and Irony Break Semantic Search:**
-- Comment: "Oh great, another bug 🙄"
+- Comment: "Oh great, another bug"
 - Semantic embedding: Focuses on "great" → positive sentiment → wrong retrieval
 - BM25: Matches "bug" → correct retrieval for "What bugs are mentioned?"
 
@@ -696,7 +643,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 - **Lower Context Recall: 0.8500 (-5.56%)** - Misses more relevant information than baseline
 - **Trade-off**: Gains precision but loses recall and faithfulness
 
-**When to Use:** If you must use semantic search (e.g., for conceptual queries without keywords), Cohere reranking significantly improves precision.
+**When I will consider to Use:** If you must use semantic search (e.g., for conceptual queries without keywords), Cohere reranking significantly improves precision.
 
 ---
 
@@ -708,7 +655,7 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 - More LLM calls → higher cost, slower performance
 
 **Why It Failed:**
-- YouTube comments don't benefit from query expansion (they already use specific vocabulary)
+- *YouTube comments don't benefit from query expansion* (they already use specific vocabulary)
 - Paraphrasing "What bugs are mentioned?" into "What issues exist?" might miss comments that say "bug" exactly
 - Query expansion works better for long-form content, not short comments
 
@@ -731,7 +678,8 @@ bm25_retriever = BM25Retriever.from_documents(docs_for_store)
 
 ---
 
-### 2. Planned Application Improvements for Second Half of Course
+### 2. Articulate the changes that you expect to make to your app in the second half of the course. How will you improve your application?
+
 
 #### Improvement 1: Hybrid BM25 + Semantic Retrieval
 Once more comments are available and I test with a richer dataset and with my final system:
@@ -744,14 +692,14 @@ Once more comments are available and I test with a richer dataset and with my fi
 ---
 
 #### Improvement 2: Multi-Language Support
-I notice from qualitative analysis (vibe's) that the system performs worst in spanish...
+I notice from qualitative analysis (*vibe testing*) that the system performs worst in spanish... BM25 is optimized and trained in English, so does the re-ranker.
 **Change:** Detect comment language and route to appropriate translation + analysis pipeline
-- **Target Languages**: Spanish, French, Portuguese, German, Japanese (top non-English YouTube languages)
+- **Target Languages**: Spanish
 - **Implementation**:
   - Language detection: `langdetect` library.
-  - Translation: Upgrade to OpenAI's latest models or try other providers. 
   - Analysis: Translate → Analyze in English → Present results in original language
-- **Cost Consideration**: An analysis of the cost and tokens will be performed.
+
+An initial idea is to translate text to English, run a single, well-tuned English BM25 + embeddings/ reranker stack (or the retrieval method that per evaluation works best); store original + translation.
 
 ---
 
