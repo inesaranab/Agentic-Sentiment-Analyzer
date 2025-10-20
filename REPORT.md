@@ -22,7 +22,7 @@
 
 ## 🎥 Demo Video
 
-**Watch the full demonstration:** https://youtu.be/iA08YIHcoVY
+**Watch the full demonstration:** https://youtu.be/aAPUDgLwyBk
 
 ---
 
