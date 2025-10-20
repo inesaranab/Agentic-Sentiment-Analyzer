@@ -97,7 +97,7 @@ This selection is specific for the prototype:
 
 ### System Design
 
-![Arquitecture](arch_logos.png)
+![Arquitecture](architecture.png)
 
 ### Multi-Agent Hierarchical Architecture
 
