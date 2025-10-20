@@ -724,5 +724,5 @@ It will improve my application by adding detail statistics that will inform my t
 
 ---
 
-**Video URL:** [To be added after recording]
+**Demo Video:** [Watch on YouTube](https://youtu.be/iA08YIHcoVY)
 
