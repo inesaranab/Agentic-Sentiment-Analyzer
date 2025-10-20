@@ -7,6 +7,18 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Task 1: Defining your Problem and Audience](#task-1-defining-your-problem-and-audience)
+- [Task 2: Propose a Solution](#task-2-propose-a-solution-15-points)
+- [Task 3: Dealing with the Data](#task-3-dealing-with-the-data)
+- [Task 4: Building an End-to-End Agentic RAG Prototype](#task-4-building-an-end-to-end-agentic-rag-prototype-15-points)
+- [Task 5: Creating a Golden Test Data Set](#task-5-creating-a-golden-test-data-set-15-points)
+- [Task 6: Advanced Retrieval Methods Implemented](#task-6-advanced-retrieval-methods-implemented-5-points)
+- [Task 7: Assessing Performance](#task-7-assessing-performance-10-points)
+
+---
+
 ## Task 1: Defining your Problem and Audience
 
 ### 1. Problem Statement (1 sentence)
