@@ -71,17 +71,17 @@ export default function Home() {
   }, [events, finalEvents, agentMessages, conversationTurns]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950">
+    <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-400 dark:to-blue-400 bg-clip-text text-transparent">
-              YouTube Sentiment AI
+            <Sparkles className="w-8 h-8 text-red-500" />
+            <h1 className="text-4xl font-bold text-white">
+              YouTube <span className="text-red-500">Sentiment</span> AI
             </h1>
           </div>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-gray-400 max-w-2xl mx-auto">
             Analyze YouTube videos with multi-agent AI. Get deep insights and ask follow-up questions in a conversation.
           </p>
         </div>
