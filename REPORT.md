@@ -10,6 +10,7 @@
 ## 📑 Table of Contents
 
 - [🎥 Demo Video](#-demo-video)
+- [📝 Noteboook: Baseline with Qdrant + Evaluation](#baseline-implementation-with-qdrant-and-evaluation)
 - [Task 1: Defining your Problem and Audience](#task-1-defining-your-problem-and-audience)
 - [Task 2: Propose a Solution](#task-2-propose-a-solution-15-points)
 - [Task 3: Dealing with the Data](#task-3-dealing-with-the-data)
@@ -17,6 +18,13 @@
 - [Task 5: Creating a Golden Test Data Set](#task-5-creating-a-golden-test-data-set-15-points)
 - [Task 6: Advanced Retrieval Methods Implemented](#task-6-advanced-retrieval-methods-implemented-5-points)
 - [Task 7: Assessing Performance](#task-7-assessing-performance-10-points)
+
+---
+## Baseline implementation with Qdrant + Evaluation 
+
+**Please refer:**![Notebook](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
+
+After evaluation Qdrant was not needed. I decided to use BM25 with in-memory index for production (in the prototype). Final complete product will need other requirements as per evaluation. 
 
 ---
 
@@ -61,7 +69,7 @@ The models were selected taking into account we are in a prototyping phase:
 **OpenAI GPT-4.1-nano** - Selected specifically for having a fast, cost-effective model for generation.
 
 #### b) Embedding Model
-As a first approach (in the baseline system), we used *text-embedding-3-small* that provide strong semantic understanding at low cost; however, after evaluation the system implements *BM25 retrieval* as a fast, embedding-free alternative for keyword-based search scenarios (youtube comments). For production, and with more comments available, re-evaluation will determine if we keep current approach or prefer an alternative that implements embeddings.
+As a first approach (in the baseline system), we used *text-embedding-3-small* that provide strong semantic understanding at low cost; however, after evaluation the system implements *BM25 retrieval* as a fast, embedding-free alternative for keyword-based search scenarios (youtube comments). For production, and with more comments available, re-evaluation will determine if we keep current approach or prefer an alternative that implements embeddings. Nonethless, at first glance, it seems the correct approach considering a multi-agent system that already uses more tokens than a simple agent arquitecture. BM25 will allowed to reduce costs as embeddings are not needed. This should be meaured.
 
 #### c) Orchestration
 **LangGraph 0.2.45+** - Selected as the orchestration framework because it provides explicit, stateful graph-based agent coordination with checkpointing for memory, streaming support for real-time UI updates, and a clear mental model for hierarchical multi-agent systems that's easier to debug than implicit chains.
@@ -216,7 +224,7 @@ npm run dev  # Starts on http://localhost:3000
 
 ---
 
-**Note: The following steps can be found in the notebook implementation: 
+**Note: The following steps can be found in the notebook implementation. The baseline system used Qdrant to stored the embeddings, after evalution, I decided to use the lexical retriever (BM25) which build and in memory index.
 
 **Notebook:** - [View on GitHub](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
 
