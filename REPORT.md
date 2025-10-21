@@ -22,7 +22,7 @@
 ---
 ## Baseline implementation with Qdrant + Evaluation 
 
-**Please refer:**![Notebook](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
+**Please refer:** ![Notebook](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
 
 After evaluation Qdrant was not needed. I decided to use BM25 with in-memory index for production (in the prototype). Final complete product will need other requirements as per evaluation. 
 
