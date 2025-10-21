@@ -228,7 +228,9 @@ npm run dev  # Starts on http://localhost:3000
 
 **Notebook:** - [View on GitHub](https://github.com/inesaranab/Agentic-Sentiment-Analyzer/blob/main/youtube-sentiment-chatbot/notebooks/multi_agent_sentiment_analyzer.ipynb)
 
-*"As goes retrieval, so goes genetation"*, so the specific pipeline component that is going to be assesed is the RAG pipeline. Although for the final system I am interested on Agentic evaluation (*goal, *tools).
+>[!TIP]
+>*"As goes retrieval, so goes genetation"*, so the specific pipeline component that is going to be assesed is the RAG pipeline. Although for the final system I am interested on Agentic evaluation (*goal, *tools).
+
 
 ## Task 5: Creating a Golden Test Data Set (15 points)
 
