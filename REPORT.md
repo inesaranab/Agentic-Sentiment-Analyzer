@@ -442,7 +442,7 @@ The NATURE of the dataset:
 3. **Domain-Specific Terms**: "NPC behavior" might match unrelated gaming content
 4. **Exact Match Needs**: Questions like "What does user @XXX say about the refund policy?" need exact keyword matching, not semantic similarity
 
-**Hypothesis:** Lexical retrieval (BM25) might perform better for short, keyword-rich comments where exact matching is more reliable than semantic similarity.
+**Hypothesis:** Lexical retrieval (BM25) might perform better for short, keyword-rich comments where exact matching is more reliable than semantic similarity, whitout missing important information (Precision/Recall trade-off)
 
 ---
 
